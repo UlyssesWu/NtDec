@@ -1,5 +1,16 @@
 # NtDec
-onscript.nt decryptor (`encrypt_mode == 15`, not for nt2,nt3 etc. but can be adapted by yourself)
+onscript.nt decryptor.
+
+Supported formats:
+
+* 1: nscript.dat
+* 2: nscr_sec.dat
+* 3: nscript.___
+* 15: onscript.nt
+* 16: nscript.nt2
+* 17: nscript.nt3
+
+Only `onscript.nt` is actually tested.
 
 ---
 by Ulysses
