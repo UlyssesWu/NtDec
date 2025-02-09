@@ -25,7 +25,7 @@ namespace NtDec
             }
 
             var mode = 15;
-            HashSet<int> supportedMode = [1,2,3,15,16,17];
+            HashSet<int> supportedMode = [1,2,3,15,16,17,18];
             if (args.Length > 1)
             {
                 if (!int.TryParse(args[1], out mode))
