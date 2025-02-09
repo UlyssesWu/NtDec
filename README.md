@@ -1,5 +1,5 @@
 # NtDec
-onscript.nt decryptor.
+onscript decryptor
 
 Supported formats:
 
