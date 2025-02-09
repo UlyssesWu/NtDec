@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 [assembly:Description("Onscript Decryptor")]
+//ns ref: http://nscripter.insani.org/reference/
 
 namespace NtDec
 {
@@ -54,6 +55,7 @@ namespace NtDec
                     case "nscript.___":
                         mode = 3;
                         break;
+                    case "nscript.nt":
                     case "onscript.nt":
                         mode = 15;
                         break;
