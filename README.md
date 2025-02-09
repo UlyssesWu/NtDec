@@ -1,0 +1,2 @@
+# NtDec
+onscript.nt decryptor
