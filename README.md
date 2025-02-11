@@ -7,8 +7,8 @@ Supported formats:
 * 2: nscr_sec.dat
 * 3: nscript.___
 * 15: onscript.nt
-* 16: nscript.nt2
-* 17: nscript.nt3
+* 16: onscript.nt2
+* 17: onscript.nt3
 
 Only `onscript.nt` is actually tested.
 
