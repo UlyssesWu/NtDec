@@ -1,9 +1,53 @@
 ﻿using System.Runtime.InteropServices;
+using System.Text;
 
 namespace NtDec
 {
     internal static class MmrankTable
     {
+        static MmrankTable()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            GBK = Encoding.GetEncoding("GBK");
+
+            Span<byte> chrSpan = stackalloc byte[2];
+            Span<char> testSpan = stackalloc char[2];
+            for (ushort i = 0; i < OnsUnencryptionTable.Length; i++)
+            {
+                var v = OnsUnencryptionTable[i];
+                var chr = (ushort)(v + 0x8140);
+                chrSpan[1] = (byte)(chr >> 8);
+                chrSpan[0] = (byte)(chr & 0xff);
+
+                var count = GBK.GetChars(chrSpan, testSpan);
+                if (count != 1 || testSpan[0] == '?')
+                {
+                    BadCharIndexes.Add(i);
+                }
+            }
+
+            //for (int i = 0; i < OnsUnencryptionTable.Length; i++)
+            //{
+            //    var v = OnsUnencryptionTable[i];
+            //    var chr = (ushort) (v + 0x8140);
+            //    if (v == 0x4811 || v == 0x1C65 || v == 0x321C || chr == 0xC950 || chr == 0xBD7D || chr == 0xDD6F)
+            //    {
+            //        Console.WriteLine($"{i:X}|{i+0x8410:X}|{chr:X}|{v:X}");
+            //    }
+            //    OnsReverseTable.Add((ushort)(i + 0x8410), chr);
+            //}
+
+            //using var fs = File.OpenWrite("charset.txt");
+            //using BinaryWriter bw = new(fs);
+            //foreach (var value in OnsReverseTable.Values)
+            //{
+            //    bw.Write(value);
+            //}
+            //bw.Close();
+        }
+
+        private static Encoding GBK;
+
         const int DataLen = 0xfefe - 0x8140 + 1;
 
         public static Dictionary<ushort, ushort> SpecialMapping = new()
@@ -11,9 +55,14 @@ namespace NtDec
             //the key is reversed, value is not
             {0xBA57, 0xA1AA }, //——
             {0xCC16, 0xA1AA }, //——
+            {0x57C3, 0xA1BA }, //『
+            {0x20BA, 0xA1BB }, //』
             {0x4811, 0xDDAA }, //蒔 C9 50 莳
             {0x1C65, 0xBBE6 }, //絵 BD 7D 绘
-            {0x321C, 0xB8A8}, //輔 DD 6F 辅
+            {0x321C, 0xB8A8 }, //輔 DD 6F 辅
+            {0xA570, 0xB2BD }, //步
+            {0x2D10, 0xA94E }, //㎞
+            {0x47F8, 0xCEC8 }, //稳
         };
 
         public static bool PostFix(in Span<byte> data)
@@ -26,6 +75,13 @@ namespace NtDec
                 data[1] = (byte)(v & 0xff);
                 return true;
             }
+            //ushort k = BinaryPrimitives.ReadUInt16LittleEndian(data);
+            //if (OnsReverseTable.TryGetValue(k, out var v))
+            //{
+            //    data[0] = (byte)(v >> 8);
+            //    data[1] = (byte)(v & 0xff);
+            //    return true;
+            //}
 
             return false;
         }
@@ -37,18 +93,26 @@ namespace NtDec
             //return data[0] > 0xA0 && data[0] < 0xFA; //BIG5
         }
 
-        public static void OnsGetUnencryptionShort(in Span<byte> data)
+        public static bool OnsGetUnencryptionShort(in Span<byte> data, long pos)
         {
             ushort index = (ushort) (data[0] << 8 | data[1]);
             var idx = index - 0x8140;
-            if (idx < 0 || idx >= OnsUnencryptionTable.Length)
+            if (idx < 0 || idx >= OnsUnencryptionTable.Length || BadCharIndexes.Contains(idx))
             {
-                return;
+                var r = PostFix(data);
+                if (!r)
+                {
+                    Console.WriteLine($"Bad Char at {pos}: {data[0]:X} {data[1]:X}");
+                }
+                return r;
             }
             ushort value = (ushort) (OnsUnencryptionTable[idx] + 0x8140);
             data[1] = (byte)(value >> 8);
             data[0] = (byte)(value & 0xff);
+            return true;
         }
+
+        public static HashSet<int> BadCharIndexes = [];
 
         public static ushort[] OnsUnencryptionTable = [
 0x8,

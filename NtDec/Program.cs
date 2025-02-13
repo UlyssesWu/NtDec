@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+
 [assembly:Description("Onscript Decryptor")]
 //ns ref: http://nscripter.insani.org/reference/
 
@@ -8,6 +9,10 @@ namespace NtDec
     {
         static void Main(string[] args)
         {
+            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            //var gbk = Encoding.GetEncoding("GBK");
+            //return;
+
             Console.WriteLine("Onscript Decryptor");
             Console.WriteLine("by Ulysses, wdwxy12345@gmail.com");
 
@@ -193,14 +198,16 @@ namespace NtDec
             for (int i = 0; i < span.Length - 1; i++)
             {
                 var s = span.Slice(i, 2);
-                //if (i == 956023)
+                //if (i == 700132)
                 //{
-                //    Console.WriteLine();
+                //    Debug.WriteLine("");
                 //}
                 if (MmrankTable.OnsLocaleIsTwoBytes(s))
                 {
-                    MmrankTable.OnsGetUnencryptionShort(s);
-                    i++;
+                    if (MmrankTable.OnsGetUnencryptionShort(s, i))
+                    {
+                        i++;
+                    }
                 }
                 else if (MmrankTable.PostFix(s))
                 {
